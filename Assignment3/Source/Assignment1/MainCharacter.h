@@ -16,8 +16,15 @@
 #include "Blueprint/UserWidget.h"
 #include "MainCharacter.generated.h"
 
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerHeal, FVector, location);
+
+UENUM(BlueprintType)
+enum class EMainCharacterState : uint8
+{
+	ENormal,
+	EPowerful,
+	EDead
+};
 
 UCLASS()
 class ASSIGNMENT1_API AMainCharacter : public ACharacter
@@ -47,6 +54,12 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		float Health_Treshold;
+
+	UPROPERTY(EditAnywhere)
+		float RunningSpeed;
+
+	UPROPERTY(EditAnywhere)
+		float WalkingSpeed;
 		
 	UFUNCTION()
 		void OnBeginOverLap(class UPrimitiveComponent* HitComp, class AActor* HealthItem, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
@@ -59,6 +72,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "EventDispatchers")
 		FOnPlayerHeal PlayerHealing;
+	
+	UFUNCTION(BlueprintPure, Category = "Power")
+		EMainCharacterState GetCurrentState() const;
+
+	// Set a new playing state
+	void SetCurrentState(EMainCharacterState NewState);
 
 protected:
 	// Called when the game starts or when spawned
@@ -67,6 +86,10 @@ protected:
 	//archetype bullet blueprint class
 	UPROPERTY(Category = "Weapon", EditAnywhere, BlueprintReadOnly)
 		TSubclassOf<AWeapon> BP_Bullet;
+
+private:
+	// Keeps track of the current playing state
+	EMainCharacterState CurrentState;
 
 public:	
 	// Called every frame

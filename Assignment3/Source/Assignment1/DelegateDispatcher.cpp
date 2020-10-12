@@ -14,7 +14,6 @@ ADelegateDispatcher::ADelegateDispatcher(const FObjectInitializer& objectInitial
 	_collision->SetSphereRadius(250.f);
 	_collision->SetHiddenInGame(false);
 	_collision->OnComponentBeginOverlap.AddDynamic(this, &ADelegateDispatcher::OnDelegateOverLap);
-	_collision->OnComponentHit.AddDynamic(this, &ADelegateDispatcher::OnDelegateHit);
 
 	RootComponent = _collision;
 }
@@ -24,7 +23,6 @@ void ADelegateDispatcher::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	GetWorld()->GetTimerManager().SetTimer(_loopTimerHandle, this, &ADelegateDispatcher::onTimerEnd, 5.f, false);
 }
 
 // Called every frame
@@ -46,19 +44,7 @@ void ADelegateDispatcher::OnDelegateOverLap(UPrimitiveComponent* HitComp, AActor
 	}
 }
 
-void ADelegateDispatcher::OnDelegateHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& SweepResult)
-{
-}
-
-void ADelegateDispatcher::onTimerEnd()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 555.f, FColor::Red, "5 seconds goes through");
-
-	GetWorld()->GetTimerManager().SetTimer(_loopTimerHandle, this, &ADelegateDispatcher::onTimerEnd, 5.f, false);
-}
-
 void ADelegateDispatcher::WhenPlayerHeals(FVector location)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 19.f, FColor::Red, "Player is healing");
 }
-

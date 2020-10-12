@@ -27,18 +27,11 @@ protected:
 	UFUNCTION()
 		void OnDelegateOverLap(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION()
-		void OnDelegateHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& SweepResult);
-
-	UFUNCTION()
-		void onTimerEnd();
 
 	UFUNCTION()
 		void WhenPlayerHeals(FVector location);
 
 private:	
 	USphereComponent* _collision;
-
-	FTimerHandle _loopTimerHandle;
 
 };

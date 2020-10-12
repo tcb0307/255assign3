@@ -43,6 +43,9 @@ AMainCharacter::AMainCharacter()
 	pDead = false;
 	Health = 100.0f;
 
+	WalkingSpeed = 600.0f;
+	RunningSpeed = 1500.0f;
+
 }
 
 
@@ -50,6 +53,7 @@ AMainCharacter::AMainCharacter()
 void AMainCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	SetCurrentState(EMainCharacterState::ENormal);
 
 	//We have to bind capsule component from the our own capsule component with the on begin overlap, in order to trigger when the character collided with a pawn
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnBeginOverLap); 
@@ -68,10 +72,17 @@ void AMainCharacter::Tick(float DeltaTime)
 
 	Health -= DeltaTime * Health_Treshold;
 
-	if (Health <= 0)
+	if (Health <= 70 && Health > 0)
+	{
+		SetCurrentState(EMainCharacterState::EPowerful);
+		GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
+	}
+
+	else if (Health <= 0)
 	{
 		if (!pDead)
 		{
+			SetCurrentState(EMainCharacterState::EDead);
 			pDead = true;
 
 			GetMesh()->SetSimulatePhysics(true);
@@ -82,6 +93,11 @@ void AMainCharacter::Tick(float DeltaTime)
 		}
 	}
 
+	else 
+	{
+		SetCurrentState(EMainCharacterState::ENormal);
+		GetCharacterMovement()->MaxWalkSpeed = WalkingSpeed;
+	}
 }
 
 // Called to bind functionality to input
@@ -122,7 +138,6 @@ void AMainCharacter::MoveRight(float val)
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0); //0 for X-asix, Rotation.Yaw for Y-axis and 0 for Z-axis
-
 		//this is going to calculate the right direction of this vector from the yaw rotation vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Direction, val);
@@ -169,11 +184,21 @@ void AMainCharacter::RestartGame() //Restart the game when the character is dead
 	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
 }
 
+EMainCharacterState AMainCharacter::GetCurrentState() const
+{
+	return CurrentState;
+}
+
+void AMainCharacter::SetCurrentState(EMainCharacterState NewState)
+{
+	CurrentState = NewState;
+}
+
 void AMainCharacter::OnBeginOverLap(UPrimitiveComponent* HitComp, AActor* HealthItem, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
 	if (HealthItem->ActorHasTag("Health"))
 	{
-		Health += 10.0f; //player's health + 10
+		Health += 60.0f; //player's health + 10
 
 		if (Health > 100.0f)
 			Health = 100.0f;
