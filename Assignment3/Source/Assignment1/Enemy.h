@@ -8,6 +8,7 @@
 #include "Weapon.h"
 #include "Enemy.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAttackNearbyPlayer2, bool, attackPlayer2);
 
 UCLASS()
 class ASSIGNMENT1_API AEnemy : public ACharacter
@@ -22,6 +23,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BluePrintReadwrite)
 		UBoxComponent* CollisionComponent;
+
+	UPROPERTY(BlueprintAssignable)
+		FAttackNearbyPlayer2 PlayerUnderAttack2;
 
 protected:
 	// Called when the game starts or when spawned
@@ -40,4 +44,7 @@ public:
 
 	UFUNCTION()
 		void OnComponentBeginOverlap(UPrimitiveComponent* OnComponentBeginOverlap, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void AvoidProjectile(bool projectilePresence);
 };

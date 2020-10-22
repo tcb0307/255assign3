@@ -55,16 +55,30 @@ void AEnemy::Dead()
 
 void AEnemy::OnComponentBeginOverlap(UPrimitiveComponent* OnComponentBeginOverlap, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
 	if (OtherActor->IsA(AWeapon::StaticClass()))
 	{
-		
 		//cast the other actor to bullet
 		AWeapon* bullet = Cast<AWeapon>(OtherActor);
+
+		bullet->EnemyDetection.AddDynamic(this, &AEnemy::AvoidProjectile);
 
 		//destroy the enemy
 		this->Dead();
 		bullet->Destroy();
 		UE_LOG(LogTemp, Warning, TEXT("Overlapped"));
+	}
+
+	if (OtherActor->ActorHasTag("Player"))
+	{
+		bool attackPlayer = true;
+		PlayerUnderAttack2.Broadcast(attackPlayer);
+	}
+}
+
+void AEnemy::AvoidProjectile(bool projectilePresence)
+{
+	if (projectilePresence == true)
+	{
+		// Code where the enemy reacts to the incoming projectile
 	}
 }

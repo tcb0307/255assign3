@@ -28,7 +28,7 @@ AWeapon::AWeapon()
 	CollisionComponent->SetSphereRadius(1000);
 	CollisionComponent->SetupAttachment(body);
 	CollisionComponent->GetGenerateOverlapEvents();
-	CollisionComponent->OnComponentBeginOverlap;
+	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnComponentBeginOverlap);
 
 	// Die after 3 seconds.
 	InitialLifeSpan = 3.0f;
@@ -50,4 +50,13 @@ void AWeapon::Tick(float DeltaTime)
 void AWeapon::FireInDirection(const FVector& ShootDirection)
 {
 	ProjectileMovementComponent->Velocity = ShootDirection * ProjectileMovementComponent->InitialSpeed;
+}
+
+void AWeapon::OnComponentBeginOverlap(UPrimitiveComponent* OnComponentBeginOverlap, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor->ActorHasTag("Enemy"))
+	{
+		bool enemyCloseBy = true;
+		EnemyDetection.Broadcast(enemyCloseBy);
+	}
 }

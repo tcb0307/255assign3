@@ -9,6 +9,8 @@
 #include "Components/SphereComponent.h"
 #include "Weapon.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDodgeProjectile, bool, bulletNearby);
+
 class UStaticMeshComponent;
 
 UCLASS()
@@ -37,6 +39,12 @@ public:
 	// Projectile movement component
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 		UProjectileMovementComponent* ProjectileMovementComponent;
+
+	UPROPERTY(BlueprintAssignable)
+		FDodgeProjectile EnemyDetection;
+
+	UFUNCTION()
+		void OnComponentBeginOverlap(UPrimitiveComponent* OnComponentBeginOverlap, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	// Function that initializes the projectile's velocity in the shoot derection
 	void FireInDirection(const FVector& ShootDirection);

@@ -61,6 +61,9 @@ void AAIEnemyController::Tick(float DeltaSeconds)
 	{
 		AMainCharacter* Player = Cast<AMainCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 		MoveToActor(Player, 5.0f);
+
+		//Attack player when player is nearby
+		MyCharacter->PlayerUnderAttack.AddDynamic(this, &AAIEnemyController::AttackPlayer);
 	}
 
 }
@@ -83,4 +86,10 @@ void AAIEnemyController::OnPawnDetected(const TArray<AActor*> &DetectedPawns)
 	}
 
 	bIsPlayerDetected = true;
+}
+
+void AAIEnemyController::AttackPlayer(bool playerNearby)
+{
+	float playerDamage = 20.f;
+	ReducingPlayerHealth.Broadcast(playerDamage);
 }

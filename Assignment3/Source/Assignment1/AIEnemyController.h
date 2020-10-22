@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "MainCharacter.h"
 #include "AIEnemyController.generated.h"
 
-/**
- * 
- */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerTakingDamage, float, healthReduction);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPlayerNearby, bool, executePlayer);
+
 UCLASS()
 class ASSIGNMENT1_API AAIEnemyController : public AAIController
 {
@@ -48,4 +49,15 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
 		float DistanceToPlayer = 0.0f;
+
+	UPROPERTY(BlueprintAssignable)
+		FPlayerTakingDamage ReducingPlayerHealth;
+
+	UPROPERTY(BlueprintAssignable)
+		FPlayerNearby AttackNearbyPlayer;
+
+private:
+	UFUNCTION()
+		void AttackPlayer(bool playerNearby);
+
 };

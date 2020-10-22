@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/BoxComponent.h"
+#include "Weapon.h"
 #include "AIEnemy.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAttackNearbyPlayer, bool, attackPlayer);
 
 UCLASS()
 class ASSIGNMENT1_API AAIEnemy : public ACharacter
@@ -15,8 +19,16 @@ public:
 	// Sets default values for this character's properties
 	AAIEnemy();
 
+	bool pDead; //determine if the character is that or not
+
+	UPROPERTY(EditAnywhere, BluePrintReadwrite)
+		UBoxComponent* CollisionComponent;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class AWaypoint* NextWaypoint;
+
+	UPROPERTY(BlueprintAssignable)
+		FAttackNearbyPlayer PlayerUnderAttack;
 
 protected:
 	// Called when the game starts or when spawned
@@ -29,4 +41,13 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void Dead();
+
+	void DestroyEnemy();
+
+	UFUNCTION()
+		void OnComponentBeginOverlap(UPrimitiveComponent* OnComponentBeginOverlap, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+		void AvoidProjectile(bool projectilePresence);
 };

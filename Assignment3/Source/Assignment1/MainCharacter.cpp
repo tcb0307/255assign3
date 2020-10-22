@@ -5,6 +5,7 @@
 #include "LineTrace.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/Actor.h"
+#include "AIEnemyController.h" 
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -15,6 +16,11 @@ AMainCharacter::AMainCharacter()
 
 	//Get the capsule component, because this is a pointer so we need InitCapsuleSize
 	GetCapsuleComponent()->InitCapsuleSize(42.0f, 96.0f);
+
+	//Radar around the player, used for trigerring other actors for when to attack player
+	//ActorsNearby = CreateDefaultSubobject<USphereComponent>(TEXT("Actors Nearby"));
+	//ActorsNearby->SetupAttachment(RootComponent);
+	//ActorsNearby->InitSphereRadius(126.0f);
 
 	//These 3 codes execute to make sure the character itself cannot rotate, only allow the camera to rotate
 	bUseControllerRotationPitch = false;
@@ -57,6 +63,8 @@ void AMainCharacter::BeginPlay()
 
 	//We have to bind capsule component from the our own capsule component with the on begin overlap, in order to trigger when the character collided with a pawn
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnBeginOverLap); 
+
+	//ActorsNearby->OnComponentBeginOverlap.AddDynamic(this, &AMainCharacter::OnOtherActorBeginOverLap);
 	
 	if (Character_Health_Widget_Class != nullptr) //fix if the health bar is not equal to null pointer
 	{
@@ -70,7 +78,8 @@ void AMainCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	Health -= DeltaTime * Health_Treshold;
+	//UE_LOG(LogTemp, Warning, TEXT("health: %s"), Health);
+	//Health -= DeltaTime * Health_Treshold;
 
 	if (Health <= 70 && Health > 0)
 	{
@@ -194,19 +203,32 @@ void AMainCharacter::SetCurrentState(EMainCharacterState NewState)
 	CurrentState = NewState;
 }
 
-void AMainCharacter::OnBeginOverLap(UPrimitiveComponent* HitComp, AActor* HealthItem, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+void AMainCharacter::OnBeginOverLap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (HealthItem->ActorHasTag("Health"))
+	if (OtherActor->ActorHasTag("Health"))
 	{
 		Health += 60.0f; //player's health + 10
 
 		if (Health > 100.0f)
 			Health = 100.0f;
 
-		HealthItem->Destroy(); //destroy healthitem
+		OtherActor->Destroy(); //destroy healthitem
 
 		FVector	Xd = { 10.f, 20.f, 30.f };
 
 		PlayerHealing.Broadcast(Xd);
 	}
+
+	if (OtherActor->ActorHasTag("Enemy"))
+	{
+		AAIEnemyController* Enemy = Cast<AAIEnemyController>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		//Attack player when player is nearby
+		Enemy->AttackNearbyPlayer.AddDynamic(this, &AMainCharacter::EnemyCloseBy);
+	}
+}
+
+void AMainCharacter::EnemyCloseBy(bool attackPlayer)
+{
+	Health -= 10.0f;
+	//UE_LOG(LogTemp, Warning, TEXT("Taking Damage!"));
 }

@@ -10,6 +10,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -41,6 +42,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 		UCameraComponent* FollowCamera;
 
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Radar)
+	//	USphereComponent* ActorsNearby;
+
 	void MoveForward(float val);
 
 	void MoveRight(float val);
@@ -62,7 +66,10 @@ public:
 		float WalkingSpeed;
 		
 	UFUNCTION()
-		void OnBeginOverLap(class UPrimitiveComponent* HitComp, class AActor* HealthItem, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+		void OnBeginOverLap(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+	//UFUNCTION()
+	//	void OnOtherActorBeginOverLap(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(EditAnywhere, Category = "UI HUD")
 		TSubclassOf<UUserWidget> Character_Health_Widget_Class;
@@ -78,6 +85,9 @@ public:
 
 	// Set a new playing state
 	void SetCurrentState(EMainCharacterState NewState);
+
+	UFUNCTION()
+		void EnemyCloseBy(bool attackPlayer);
 
 protected:
 	// Called when the game starts or when spawned
